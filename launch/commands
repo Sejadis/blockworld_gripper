@@ -36,7 +36,6 @@ set predicate (location_above s2l3 s2l2)
 set predicate (location_above s3l2 s3l1)
 set predicate (location_above s3l3 s3l2)
 
-set predicate (gripper_available gripper)
 set predicate (gripper_at gripper s1l2)
 set predicate (gripper_open gripper)
 

@@ -21,7 +21,6 @@
     (stack_empty ?s - stack)
     (location_above ?l_above ?l_below - location)
     (is_base_loc ?l - location ?s - stack)
-    (gripper_available ?g - gripper)
 
 );; end Predicates ;;;;;;;;;;;;;;;;;;;;
 ;; Functions ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -40,7 +39,6 @@
     :duration (= ?duration 0.25)
     :condition (
         and
-            ;(at start(gripper_available ?g))
             (over all(gripper_at ?g ?l))
             (at start(box_at ?b ?l))
             (at start(gripper_open ?g))
@@ -49,8 +47,6 @@
     )
     :effect (
         and
-            ;(at start(not(gripper_available ?g)))
-            ;(at end(gripper_available ?g))
             (at end(not (box_at ?b ?l)))
             (at end(not (gripper_open ?g)))
             (at end(is_holding ?g ?b))
@@ -68,7 +64,6 @@
     :duration (= ?duration 0.25)
     :condition (
         and
-            ;(at start(gripper_available ?g))
             (at start(is_holding ?g ?b))
             (over all(gripper_at ?g ?l))
             (at start(is_base_loc ?l ?s))
@@ -76,8 +71,6 @@
     )
     :effect (
         and
-            ;(at start(not(gripper_available ?g)))
-            ;(at end(gripper_available ?g))
             (at end(box_at ?b ?l))
             (at end(not (is_holding ?g ?b)))
             (at end(gripper_open ?g))
@@ -95,7 +88,6 @@
     :duration (= ?duration 0.25)
     :condition (
         and
-            ;(at start(gripper_available ?g))
             (at start(clear ?b2))
             (at start(is_holding ?g ?b))
             (over all(gripper_at ?g ?l))
@@ -104,8 +96,6 @@
     )
     :effect (
         and
-            ;(at start(not(gripper_available ?g)))
-            ;(at end(gripper_available ?g))
             (at end(not(clear ?b2)))
             (at end(box_on ?b ?b2))
             (at end(clear ?b))
@@ -124,7 +114,6 @@
     :duration (= ?duration 0.25)
     :condition (
         and
-            ;(at start(gripper_available ?g))
             (at start(clear ?b))
             (at start(gripper_open ?g))
             (at start(box_on ?b ?b2))
@@ -134,8 +123,6 @@
     )
     :effect (
         and
-            ;(at start(not(gripper_available ?g)))
-            ;(at end(gripper_available ?g))
             (at end(not(clear ?b)))
             (at end(not(box_on ?b ?b2)))
             (at end(clear ?b2))
@@ -153,13 +140,10 @@
     :duration (= ?duration 1)
     :condition (
         and
-            ;(at start(gripper_available ?g))
             (at start(gripper_at ?g ?l_from))
     )
     :effect (
         and
-            ;(at start(not(gripper_available ?g)))
-            ;(at end(gripper_available ?g))
             (at start(not (gripper_at ?g ?l_from)))
             (at end(gripper_at ?g ?l_to))
     )
