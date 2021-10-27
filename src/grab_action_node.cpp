@@ -8,11 +8,11 @@
 
 using namespace std::chrono_literals;
 
-class MoveGripperAction : public plansys2::ActionExecutorClient
+class GrabAction : public plansys2::ActionExecutorClient
 {
 public:
-  MoveGripperAction()
-  : plansys2::ActionExecutorClient("move_gripper", 100ms)
+  GrabAction()
+  : plansys2::ActionExecutorClient("grab", 500ms)
   {
     progress_ = 0.0;
   }
@@ -21,16 +21,16 @@ private:
   {
     if (progress_ < 1.0) {
       progress_ += 0.02;
-      send_feedback(progress_, "Move running");
+      send_feedback(progress_, "grab running");
     } else {
-      finish(true, 1.0, "Move completed");
+      finish(true, 1.0, "grab completed");
 
       progress_ = 0.0;
       std::cout << std::endl;
     }
 
     std::cout << "\r\e[K" << std::flush;
-    std::cout << "Moving ... [" << std::min(100.0, progress_ * 100.0) << "%]  " <<
+    std::cout << "Grab ... [" << std::min(100.0, progress_ * 100.0) << "%]  " <<
       std::flush;
   }
 
@@ -40,9 +40,9 @@ private:
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<MoveGripperAction>();
+  auto node = std::make_shared<GrabAction>();
 
-  node->set_parameter(rclcpp::Parameter("action_name", "move-gripper"));
+  node->set_parameter(rclcpp::Parameter("action_name", "grab"));
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
 
   rclcpp::spin(node->get_node_base_interface());
