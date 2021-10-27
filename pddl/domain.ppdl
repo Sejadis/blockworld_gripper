@@ -1,9 +1,9 @@
 ;Header and description
 
-(define (domain boxes-durative)
+(define (domain boxes)
 
 ;remove requirements that are not needed
-(:requirements :strips :adl :durative-actions :fluents :typing)
+(:requirements :strips :typing :adl :fluents :durative-actions)
 
 (:types ;todo: enumerate types and their hierarchy here, e.g. car truck bus - vehicle
     box
@@ -42,7 +42,7 @@
     :duration (= ?duration 0.25)
     :condition (
         and 
-            (over all(gripper_at ?g ?l))
+            (at start(gripper_at ?g ?l))
             (at start(box_at ?b ?l))
             (at start(gripper_open ?g))
             (at start(clear ?b))
@@ -68,7 +68,7 @@
     :condition (
         and 
             (at start(is_holding ?g ?b))
-            (over all(gripper_at ?g ?l))
+            (at start(gripper_at ?g ?l))
             (at start(is_base_loc ?l ?s))
             (at start(stack_empty ?s))
     )
@@ -93,7 +93,7 @@
         and 
             (at start(clear ?b2))
             (at start(is_holding ?g ?b))
-            (over all(gripper_at ?g ?l))
+            (at start(gripper_at ?g ?l))
             (at start(location_above ?l ?l2))
             (at start(box_at ?b2 ?l2))
     )
@@ -121,7 +121,7 @@
             (at start(clear ?b))
             (at start(gripper_open ?g))
             (at start(box_on ?b ?b2))
-            (over all(gripper_at ?g ?l))
+            (at start(gripper_at ?g ?l))
             (at start(box_at ?b ?l))
             (at start(box_at ?b2 ?l2))
     )
