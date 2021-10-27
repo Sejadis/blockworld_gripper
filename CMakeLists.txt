@@ -17,21 +17,29 @@ set(dependencies
     plansys2_executor
 )
 
-add_executable(move_action_node src/move_action_node.cpp)
-ament_target_dependencies(move_action_node ${dependencies})
+add_executable(move_gripper_action_node src/move_gripper_action_node.cpp)
+ament_target_dependencies(move_gripper_action_node ${dependencies})
 
-add_executable(charge_action_node src/charge_action_node.cpp)
-ament_target_dependencies(charge_action_node ${dependencies})
+add_executable(place_action_node src/place_action_node.cpp)
+ament_target_dependencies(place_action_node ${dependencies})
 
-add_executable(ask_charge_action_node src/ask_charge_action_node.cpp)
-ament_target_dependencies(ask_charge_action_node ${dependencies})
+add_executable(grab_action_node src/grab_action_node.cpp)
+ament_target_dependencies(grab_action_node ${dependencies})
+
+add_executable(stack_action_node src/stack_action_node.cpp)
+ament_target_dependencies(stack_action_node ${dependencies})
+
+add_executable(unstack_action_node src/unstack_action_node.cpp)
+ament_target_dependencies(unstack_action_node ${dependencies})
 
 install(DIRECTORY launch pddl DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
-  move_action_node
-  charge_action_node
-  ask_charge_action_node
+  move_gripper_action_node
+  place_action_node
+  grab_action_node
+  stack_action_node
+  unstack_action_node
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
