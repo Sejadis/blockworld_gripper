@@ -42,34 +42,51 @@ def generate_launch_description():
             'launch',
             'plansys2_bringup_launch_monolithic.py')),
         launch_arguments={
-          'model_file': example_dir + '/pddl/domain2.pddl',
+          'model_file': example_dir + '/pddl/test-domain.pddl',
           'namespace': namespace
           }.items())
 
     # Specify the actions
-    move_cmd = Node(
+    move_gripper_cmd = Node(
         package='blockworld_gripper',
-        executable='move_action_node',
-        name='move_action_node',
+        executable='move_gripper_action_node',
+        name='move_gripper_action_node',
         namespace=namespace,
         output='screen',
         parameters=[])
 
-    charge_cmd = Node(
+    grab_cmd = Node(
         package='blockworld_gripper',
-        executable='charge_action_node',
-        name='charge_action_node',
+        executable='grab_action_node',
+        name='grab_action_node',
         namespace=namespace,
         output='screen',
         parameters=[])
 
-    ask_charge_cmd = Node(
+    place_cmd = Node(
         package='blockworld_gripper',
-        executable='ask_charge_action_node',
-        name='ask_charge_action_node',
+        executable='place_action_node',
+        name='place_action_node',
         namespace=namespace,
         output='screen',
-        parameters=[])   # Create the launch description and populate
+        parameters=[])
+
+    stack_cmd = Node(
+        package='blockworld_gripper',
+        executable='stack_action_node',
+        name='stack_action_node',
+        namespace=namespace,
+        output='screen',
+        parameters=[])
+
+    unstack_cmd = Node(
+        package='blockworld_gripper',
+        executable='unstack_action_node',
+        name='unstack_action_node',
+        namespace=namespace,
+        output='screen',
+        parameters=[])
+    # Create the launch description and populate
     ld = LaunchDescription()
 
     # Set environment variables
@@ -79,8 +96,10 @@ def generate_launch_description():
     # Declare the launch options
     ld.add_action(plansys2_cmd)
 
-    ld.add_action(move_cmd)
-    ld.add_action(charge_cmd)
-    ld.add_action(ask_charge_cmd)
+    ld.add_action(move_gripper_cmd)
+    ld.add_action(grab_cmd)
+    ld.add_action(place_cmd)
+    ld.add_action(stack_cmd)
+    ld.add_action(unstack_cmd)
 
     return ld
