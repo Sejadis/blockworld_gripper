@@ -55,8 +55,9 @@ set predicate (clear grey)
 set predicate (clear white)
 set predicate (clear black)
 
-set goal (and(box_at black s3l1)(is_holding gripper white))
+set goal (and(is_holding gripper black))
 
+set goal (and(box_at black s3l1)(is_holding gripper white))
 run
 
 get plan
