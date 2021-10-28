@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/blockworld_gripper.iml" filepath="$PROJECT_DIR$/.idea/blockworld_gripper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/blockworld_gripper_launch.py.iml" filepath="$PROJECT_DIR$/.idea/blockworld_gripper_launch.py.iml" />
     </modules>
   </component>
 </project>
