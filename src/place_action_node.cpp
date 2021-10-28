@@ -5,6 +5,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
+#include "open_manipulator_msgs/srv/set_joint_position.hpp"
 
 using namespace std::chrono_literals;
 
@@ -12,29 +13,42 @@ class PlaceAction : public plansys2::ActionExecutorClient
 {
 public:
   PlaceAction()
-  : plansys2::ActionExecutorClient("place", 500ms)
+  : plansys2::ActionExecutorClient("place", 1s)
   {
-    progress_ = 0.0;
+      isStarted = false;
+      toolClient = this->create_client<open_manipulator_msgs::srv::SetJointPosition>("goal_tool_control");
+      while (!toolClient->wait_for_service(1s)) {
+          if (!rclcpp::ok()) {
+              RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
+          }
+          RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
+      }
   }
 private:
   void do_work()
   {
-    if (progress_ < 1.0) {
-      progress_ += 0.02;
-      send_feedback(progress_, "Place running");
-    } else {
-      finish(true, 1.0, "Place completed");
+      if (!isStarted) {
+          isStarted = true;
+          auto request = std::make_shared<open_manipulator_msgs::srv::SetJointPosition::Request>();
+          request->path_time = 0.5;
+          request->joint_position.joint_name.push_back("gripper");
+          request->joint_position.position.push_back(0.01);
+          auto result = toolClient->async_send_request(request);
+          send_feedback(isStarted, "grab running");
+      } else {
+          finish(true, 1.0, "grab completed");
 
-      progress_ = 0.0;
-      std::cout << std::endl;
-    }
+          isStarted = false;
+          std::cout << std::endl;
+      }
 
     std::cout << "\r\e[K" << std::flush;
-    std::cout << "Place ... [" << std::min(100.0, progress_ * 100.0) << "%]  " <<
+    std::cout << "Place ... [" << isStarted << "]  " <<
       std::flush;
   }
 
-  float progress_;
+    bool isStarted;
+    rclcpp::Client<open_manipulator_msgs::srv::SetJointPosition>::SharedPtr toolClient;
 };
 
 int main(int argc, char ** argv)
