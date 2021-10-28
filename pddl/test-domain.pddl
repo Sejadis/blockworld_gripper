@@ -51,6 +51,7 @@
             (at end(not (gripper_open ?g)))
             (at end(is_holding ?g ?b))
             (at end(stack_empty ?s))
+            (at end(not(clear ?b)))
     )
 )
 
