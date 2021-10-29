@@ -1,0 +1,8 @@
+No action performer for (XXX). retrying
+
+[ERROR] [plansys2_node-1]: process has died [pid 23992, exit code -11, cmd '/home/fabian/colcon_ws2/install/plansys2_bringup/lib/plansys2_bringup/plansys2_node --ros-args -r __ns:=/ --params-file /tmp/launch_params_zou7o9d7 --params-file /home/fabian/colcon_ws2/install/plansys2_bringup/share/plansys2_bringup/params/plansys2_params.yaml'].
+
+
+[plansys2_node-1] [WARN] [1635512372.168395488] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+
+[plansys2_node-1] [WARN] [1635511882.575969666] [LifecyclePublisher]: Trying to publish message on the topic '/actions_hub', but the publisher is not activated
