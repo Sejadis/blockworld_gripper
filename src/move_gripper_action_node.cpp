@@ -17,7 +17,7 @@ using std::placeholders::_1;
 class MoveGripperAction : public plansys2::ActionExecutorClient {
 public:
     MoveGripperAction()
-            : plansys2::ActionExecutorClient("move_gripper", 1500ms) {
+            : plansys2::ActionExecutorClient("move_gripper", 100ms) {
         isStarted = false;
         isCurrentMovementFinished = false;
         manipulator_state_subscription_ = this->create_subscription<open_manipulator_msgs::msg::OpenManipulatorState>(
@@ -31,7 +31,7 @@ public:
                 RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
                 break;
             }
-            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
+            RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "KinematicsPose service not available, waiting again...");
         }
     }
 
@@ -60,7 +60,7 @@ private:
 
             std::map<std::string, int>::const_iterator iterLevel = levelMap.find(args[2]);
             if (iterLevel != levelMap.end()) {
-                std::cout << iterLevel->first << "->" << iterLevel->second;
+                std::cout << iterLevel->first << "->" << iterLevel->second << " ";
                 level = iterLevel->second;
             }
             int stack = -1;
@@ -93,8 +93,8 @@ private:
         }
 
 
-        std::cout << "\r\e[K" ;
-        std::cout << "Moving ... [" << isStarted << "]  ";
+        std::cout << "\r\e[K"  << std::flush;
+        std::cout << "Moving ... [" << float(queueTasksDone) / queueLength << "]  " << std::flush;
     }
 
     void create_movement(int stack, int level){
@@ -102,20 +102,24 @@ private:
         std::queue<std::shared_ptr<open_manipulator_msgs::srv::SetKinematicsPose::Request>> emptyQueue;
         std::swap(requestQueue, emptyQueue);
         if(stack == -1 || level == -1 || kinematicsPose == nullptr){
-            std::cout << "Error detected" << stack << " " << level << " " << (kinematicsPose == nullptr);
+            std::cout << "Error detected when creating movement stack: " << stack << " level: " << level << " Pose null: " << (kinematicsPose == nullptr);
             return;
         }
         //a position above the current that is clear from collisions
         auto currentPosition = kinematicsPose->pose.position;
-        auto currentClearRequest = create_request(currentPosition.x, currentPosition.y, CLEAR_HEIGHT);
+        std::cout << "Current (" << currentPosition.x << ", " << currentPosition.y << ", " << currentPosition.z << ")" << std::flush;
+        std::cout << "Target (" << STACK_POS << ", " << stackPosMap[stack] << ", " << heightMap[level] << ")" << std::flush;
+        if(roundTo2DecimalPlaces(currentPosition.x) != STACK_POS || roundTo2DecimalPlaces(currentPosition.y) != stackPosMap[stack]){
+            auto currentClearRequest = create_request(currentPosition.x, currentPosition.y, CLEAR_HEIGHT);
 
-        //a position above the target position that is clear from collisions
-        auto targetClearRequest = create_request(STACK_POS,stackPosMap[stack], CLEAR_HEIGHT);
+            //a position above the target position that is clear from collisions
+            auto targetClearRequest = create_request(STACK_POS,stackPosMap[stack], CLEAR_HEIGHT);
+            requestQueue.push(currentClearRequest);
+            requestQueue.push(targetClearRequest);
+        }
 
         //the position we want to end up at
         auto targetPointRequest = create_request(STACK_POS, stackPosMap[stack], heightMap[level]);
-        requestQueue.push(currentClearRequest);
-        requestQueue.push(targetClearRequest);
         requestQueue.push(targetPointRequest);
     }
 
@@ -128,6 +132,10 @@ private:
         request->path_time = 2.5;
 
         return request;
+    }
+
+    float roundTo2DecimalPlaces(float input){
+        return roundf(input * 100) / 100;
     }
 
     rclcpp::Subscription<open_manipulator_msgs::msg::OpenManipulatorState>::SharedPtr manipulator_state_subscription_;

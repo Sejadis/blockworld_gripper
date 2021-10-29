@@ -13,7 +13,7 @@ class GrabAction : public plansys2::ActionExecutorClient
 {
 public:
   GrabAction()
-  : plansys2::ActionExecutorClient("grab", 1s)
+  : plansys2::ActionExecutorClient("grab", 500ms)
   {
       isStarted = false;
     toolClient = this->create_client<open_manipulator_msgs::srv::SetJointPosition>("goal_tool_control");
@@ -21,7 +21,7 @@ public:
           if (!rclcpp::ok()) {
               RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Interrupted while waiting for the service. Exiting.");
           }
-          RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
+          RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "SetJointPosition service not available, waiting again...");
       }
   }
 private:
@@ -34,7 +34,7 @@ private:
         request->joint_position.joint_name.push_back("gripper");
         request->joint_position.position.push_back(0.0025);
         auto result = toolClient->async_send_request(request);
-      send_feedback(isStarted, "grab running");
+      send_feedback(0.5, "grab running");
     } else {
       finish(true, 1.0, "grab completed");
 

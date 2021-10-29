@@ -13,7 +13,7 @@ class UnstackAction : public plansys2::ActionExecutorClient
 {
 public:
   UnstackAction()
-  : plansys2::ActionExecutorClient("unstack", 1s)
+  : plansys2::ActionExecutorClient("unstack", 500ms)
   {
       isStarted = false;
       toolClient = this->create_client<open_manipulator_msgs::srv::SetJointPosition>("goal_tool_control");
@@ -34,7 +34,7 @@ private:
           request->joint_position.joint_name.push_back("gripper");
           request->joint_position.position.push_back(0.0025);
           auto result = toolClient->async_send_request(request);
-          send_feedback(isStarted, "grab running");
+          send_feedback(0.5, "grab running");
       } else {
           finish(true, 1.0, "grab completed");
 

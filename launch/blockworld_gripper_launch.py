@@ -34,7 +34,7 @@ def generate_launch_description():
         description='Namespace')
 
     stdout_linebuf_envvar = SetEnvironmentVariable(
-        'RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED', '1')
+        'RCUTILS_LOGGING_BUFFERED_STREAM', '1')
 
     plansys2_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(
