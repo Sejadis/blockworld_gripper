@@ -61,3 +61,60 @@ set goal (and(is_holding gripper black))
 run
 
 get plan
+
+-------------------------------------------------------------------
+
+set instance gripper gripper
+
+set instance blue box
+set instance yellow box
+set instance white box
+
+
+set instance s1 stack
+set instance s2 stack
+set instance s3 stack
+
+set instance s1l1 location
+set instance s1l2 location
+set instance s1l3 location
+
+set instance s2l1 location
+set instance s2l2 location
+set instance s2l3 location
+
+set instance s3l1 location
+set instance s3l2 location
+set instance s3l3 location
+
+
+set predicate (is_base_loc s1l1 s1)
+set predicate (is_base_loc s2l1 s2)
+set predicate (is_base_loc s3l1 s3)
+
+set predicate (location_above s1l2 s1l1)
+set predicate (location_above s1l3 s1l2)
+
+set predicate (location_above s2l2 s2l1)
+set predicate (location_above s2l3 s2l2)
+
+set predicate (location_above s3l2 s3l1)
+set predicate (location_above s3l3 s3l2)
+
+set predicate (gripper_at gripper s2l2)
+set predicate (gripper_open gripper)
+
+
+set predicate (box_at blue s1l1)
+
+set predicate (box_at yellow s1l2)
+set predicate (box_on yellow blue)
+
+set predicate (box_at white s2l1)
+
+set predicate (clear white)
+set predicate (clear yellow)
+
+set predicate (stack_empty s3)
+
+set goal (and(box_on white yellow)(box_on blue white))
