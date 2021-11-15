@@ -60,13 +60,13 @@ private:
 
             std::map<std::string, int>::const_iterator iterLevel = levelMap.find(args[2]);
             if (iterLevel != levelMap.end()) {
-                std::cout << iterLevel->first << "->" << iterLevel->second << " ";
+                std::cout << iterLevel->first << "->" << iterLevel->second << std::endl;
                 level = iterLevel->second;
             }
             int stack = -1;
             std::map<std::string, int>::const_iterator iterStack = stackMap.find(args[2]);
             if (iterStack != levelMap.end()) {
-                std::cout << iterStack->first << "->" << iterStack->second;
+                std::cout << iterStack->first << "->" << iterStack->second << std::endl;
                 stack = iterStack->second;
             }
 
@@ -92,9 +92,10 @@ private:
             }
         }
 
+        //send_feedback(float(queueTasksDone) / queueLength, "Move started");
 
         std::cout << "\r\e[K"  << std::flush;
-        std::cout << "Moving ... [" << float(queueTasksDone) / queueLength << "]  " << std::flush;
+        std::cout << "Moving ... [" << float(queueTasksDone) / queueLength << "]  " << std::endl;
     }
 
     void create_movement(int stack, int level){
@@ -102,13 +103,13 @@ private:
         std::queue<std::shared_ptr<open_manipulator_msgs::srv::SetKinematicsPose::Request>> emptyQueue;
         std::swap(requestQueue, emptyQueue);
         if(stack == -1 || level == -1 || kinematicsPose == nullptr){
-            std::cout << "Error detected when creating movement stack: " << stack << " level: " << level << " Pose null: " << (kinematicsPose == nullptr);
+            std::cout << "Error detected when creating movement stack: " << stack << " level: " << level << " Pose null: " << (kinematicsPose == nullptr) << std::endl;
             return;
         }
         //a position above the current that is clear from collisions
         auto currentPosition = kinematicsPose->pose.position;
-        std::cout << "Current (" << currentPosition.x << ", " << currentPosition.y << ", " << currentPosition.z << ")" << std::flush;
-        std::cout << "Target (" << STACK_POS << ", " << stackPosMap[stack] << ", " << heightMap[level] << ")" << std::flush;
+        std::cout << "Current (" << currentPosition.x << ", " << currentPosition.y << ", " << currentPosition.z << ")" << std::endl;
+        std::cout << "Target (" << STACK_POS << ", " << stackPosMap[stack] << ", " << heightMap[level] << ")" << std::endl;
         if(roundTo2DecimalPlaces(currentPosition.x) != STACK_POS || roundTo2DecimalPlaces(currentPosition.y) != stackPosMap[stack]){
             auto currentClearRequest = create_request(currentPosition.x, currentPosition.y, CLEAR_HEIGHT);
 
