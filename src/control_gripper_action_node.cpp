@@ -20,7 +20,7 @@ public:
             : plansys2::ActionExecutorClient(name, 500ms)
     {
         this->declare_parameter<std::string>("my_parameter", "world");
-        //nodeName = name;
+        nodeName = name;
         toolTargetValue = isOpener ? OPENING_VALUE : CLOSING_VALUE;
         isStarted = false;
         toolClient = this->create_client<open_manipulator_msgs::srv::SetJointPosition>("goal_tool_control");
@@ -42,19 +42,16 @@ private:
             request->joint_position.position.push_back(toolTargetValue);
             auto result = toolClient->async_send_request(request);
             send_feedback(isStarted,  + "running");
+            std::cout << nodeName <<" ... [started]" << std::endl;
         } else {
             finish(true, 1.0, "grab completed");
 
             isStarted = false;
-            std::cout << std::endl;
+            std::cout << nodeName <<" ... [finished]" << std::endl;
         }
-
-        std::cout << "\r\e[K" << std::flush;
-        std::cout << "Grab ... [" << isStarted << "]  " <<
-                  std::flush;
     }
 
-    //std::string nodeName;
+    std::string nodeName;
     float toolTargetValue;
     const float OPENING_VALUE = 0.01;
     const float CLOSING_VALUE = 0.0025;
