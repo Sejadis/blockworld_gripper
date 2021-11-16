@@ -81,7 +81,9 @@ private:
                 requestQueue.pop();
                 isCurrentMovementFinished = false;
                 auto result = kinematicsPoseClient->async_send_request(nextRequest);
-                send_feedback(float(queueTasksDone) / queueLength, "Move started");
+                send_feedback(float(queueTasksDone) / queueLength, "Move continue");
+                //std::cout << "\r\e[K"  << std::flush;
+                std::cout << "Moving ... [" << roundTo2DecimalPlaces(float(queueTasksDone) / queueLength) << "]  " << std::endl;
             }
             else if(isStarted){
                 //we did start and no more movement enqueued
@@ -93,9 +95,6 @@ private:
         }
 
         //send_feedback(float(queueTasksDone) / queueLength, "Move started");
-
-        std::cout << "\r\e[K"  << std::flush;
-        std::cout << "Moving ... [" << float(queueTasksDone) / queueLength << "]  " << std::endl;
     }
 
     void create_movement(int stack, int level){
@@ -108,19 +107,24 @@ private:
         }
         //a position above the current that is clear from collisions
         auto currentPosition = kinematicsPose->pose.position;
+        std::cout << "Calculating Positions..." << std::endl;
         std::cout << "Current (" << currentPosition.x << ", " << currentPosition.y << ", " << currentPosition.z << ")" << std::endl;
         std::cout << "Target (" << STACK_POS << ", " << stackPosMap[stack] << ", " << heightMap[level] << ")" << std::endl;
         if(roundTo2DecimalPlaces(currentPosition.x) != STACK_POS || roundTo2DecimalPlaces(currentPosition.y) != stackPosMap[stack]){
+            std::cout << "We are at the wrong stack, adding positions for collision free movement" << std::endl;
             auto currentClearRequest = create_request(currentPosition.x, currentPosition.y, CLEAR_HEIGHT);
 
             //a position above the target position that is clear from collisions
             auto targetClearRequest = create_request(STACK_POS,stackPosMap[stack], CLEAR_HEIGHT);
+            std::cout << "Adding Position: (" << currentPosition.x << ", " << currentPosition.y << ", " << CLEAR_HEIGHT << ")" << std::endl;
             requestQueue.push(currentClearRequest);
+            std::cout << "Adding Position: (" << STACK_POS << ", " << stackPosMap[stack] << ", " << CLEAR_HEIGHT << ")" << std::endl;
             requestQueue.push(targetClearRequest);
         }
 
         //the position we want to end up at
         auto targetPointRequest = create_request(STACK_POS, stackPosMap[stack], heightMap[level]);
+        std::cout << "Adding Position: (" << STACK_POS << ", " << stackPosMap[stack] << ", " << heightMap[level] << ")" << std::endl;
         requestQueue.push(targetPointRequest);
     }
 
