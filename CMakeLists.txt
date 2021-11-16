@@ -19,6 +19,9 @@ set(dependencies
     open_manipulator_msgs
 )
 
+add_executable(control_gripper_action_node src/control_gripper_action_node.cpp)
+ament_target_dependencies(control_gripper_action_node ${dependencies})
+
 add_executable(move_gripper_action_node src/move_gripper_action_node.cpp)
 ament_target_dependencies(move_gripper_action_node ${dependencies})
 
@@ -37,14 +40,15 @@ ament_target_dependencies(unstack_action_node ${dependencies})
 install(DIRECTORY launch pddl DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
-  move_gripper_action_node
-  place_action_node
-  grab_action_node
-  stack_action_node
-  unstack_action_node
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
+        move_gripper_action_node
+        control_gripper_action_node
+        place_action_node
+        grab_action_node
+        stack_action_node
+        unstack_action_node
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
