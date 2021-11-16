@@ -55,35 +55,10 @@ def generate_launch_description():
         namespace=namespace,
         output='screen',
         parameters=[])
-
-    grab_cmd = Node(
+    control_gripper_cmd = Node(
         package='blockworld_gripper',
-        executable='grab_action_node',
-        name='grab_action_node',
-        namespace=namespace,
-        output='screen',
-        parameters=[])
-
-    place_cmd = Node(
-        package='blockworld_gripper',
-        executable='place_action_node',
-        name='place_action_node',
-        namespace=namespace,
-        output='screen',
-        parameters=[])
-
-    stack_cmd = Node(
-        package='blockworld_gripper',
-        executable='stack_action_node',
-        name='stack_action_node',
-        namespace=namespace,
-        output='screen',
-        parameters=[])
-
-    unstack_cmd = Node(
-        package='blockworld_gripper',
-        executable='unstack_action_node',
-        name='unstack_action_node',
+        executable='control_gripper_action_node',
+        name='control_gripper_action_node',
         namespace=namespace,
         output='screen',
         parameters=[])
@@ -98,9 +73,6 @@ def generate_launch_description():
     ld.add_action(plansys2_cmd)
 
     ld.add_action(move_gripper_cmd)
-    ld.add_action(grab_cmd)
-    ld.add_action(place_cmd)
-    ld.add_action(stack_cmd)
-    ld.add_action(unstack_cmd)
+    ld.add_action(control_gripper_cmd)
 
     return ld
