@@ -51,4 +51,5 @@ set predicate (clear yellow)
 
 set predicate (stack_empty s3)
 
+set goal (and(box_on yellow blue)(box_on blue white))
 set goal (and(box_on white yellow)(box_on blue white))

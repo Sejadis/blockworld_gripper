@@ -1,0 +1,114 @@
+set instance s1 stack
+set instance s2 stack
+set instance s3 stack
+set instance s4 stack
+set instance s5 stack
+
+set instance s1l1 location
+set instance s1l2 location
+set instance s1l3 location
+set instance s1l4 location
+set instance s1l5 location
+
+set instance s2l1 location
+set instance s2l2 location
+set instance s2l3 location
+set instance s2l4 location
+set instance s2l5 location
+
+set instance s3l1 location
+set instance s3l2 location
+set instance s3l3 location
+set instance s3l4 location
+set instance s3l5 location
+
+set instance s4l1 location
+set instance s4l2 location
+set instance s4l3 location
+set instance s4l4 location
+set instance s4l5 location
+
+set instance s5l1 location
+set instance s5l2 location
+set instance s5l3 location
+set instance s5l4 location
+set instance s5l5 location
+
+set predicate (is_base_loc s1l1 s1)
+set predicate (is_base_loc s2l1 s2)
+set predicate (is_base_loc s3l1 s3)
+set predicate (is_base_loc s4l1 s4)
+set predicate (is_base_loc s5l1 s5)
+
+set predicate (location_above s1l2 s1l1)
+set predicate (location_above s1l3 s1l2)
+set predicate (location_above s1l4 s1l3)
+set predicate (location_above s1l5 s1l4)
+
+set predicate (location_above s2l2 s2l1)
+set predicate (location_above s2l3 s2l2)
+set predicate (location_above s2l4 s2l3)
+set predicate (location_above s2l5 s2l4)
+
+set predicate (location_above s3l2 s3l1)
+set predicate (location_above s3l3 s3l2)
+set predicate (location_above s3l4 s3l3)
+set predicate (location_above s3l5 s3l4)
+
+set predicate (location_above s4l2 s4l1)
+set predicate (location_above s4l3 s4l2)
+set predicate (location_above s4l4 s4l3)
+set predicate (location_above s4l5 s4l4)
+
+set predicate (location_above s5l2 s5l1)
+set predicate (location_above s5l3 s5l2)
+set predicate (location_above s5l4 s5l3)
+set predicate (location_above s5l5 s5l4)
+
+set instance gripper gripper
+
+set predicate (gripper_at gripper s2l2)
+set predicate (gripper_open gripper)
+
+
+set instance b1 box
+set instance b2 box
+set instance b3 box
+set instance b4 box
+set instance b5 box
+set instance b6 box
+set instance b7 box
+set instance b8 box
+
+set predicate (box_at b1 s1l1)
+
+set predicate (box_at b2 s1l2)
+set predicate (box_on b2 b1)
+
+set predicate (box_at b3 s1l3)
+set predicate (box_on b3 b2)
+
+set predicate (box_at b4 s1l4)
+set predicate (box_on b4 b3)
+
+set predicate (box_at b5 s1l5)
+set predicate (box_on b5 b4)
+
+set predicate (clear b5)
+
+
+set predicate (box_at b6 s2l1)
+
+set predicate (box_at b7 s2l2)
+set predicate (box_on b7 b6)
+
+set predicate (box_at b8 s2l3)
+set predicate (box_on b8 b7)
+
+set predicate (clear b8)
+
+set predicate (stack_empty s3)
+set predicate (stack_empty s4)
+set predicate (stack_empty s5)
+
+set goal (and(box_on b5 b8))

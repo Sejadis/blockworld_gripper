@@ -1,11 +1,3 @@
-set instance gripper gripper
-
-set instance blue box
-set instance yellow box
-set instance black box
-set instance white box
-set instance grey box
-
 set instance s1 stack
 set instance s2 stack
 set instance s3 stack
@@ -36,8 +28,18 @@ set predicate (location_above s2l3 s2l2)
 set predicate (location_above s3l2 s3l1)
 set predicate (location_above s3l3 s3l2)
 
+
+set instance gripper gripper
+
 set predicate (gripper_at gripper s2l2)
 set predicate (gripper_open gripper)
+
+
+set instance blue box
+set instance yellow box
+set instance black box
+set instance white box
+set instance grey box
 
 set predicate (box_at blue s1l1)
 
