@@ -164,26 +164,31 @@ private:
             {"s2l3", std::make_pair(2,3)},
             {"s3l3", std::make_pair(3,3)},
     };
-    std::map<std::string, int> stackMap = {
-            {"s1l1", 1},
-            {"s1l3", 1},
-            {"s1l2", 1},
-            {"s2l1", 2},
-            {"s2l3", 2},
-            {"s2l2", 2},
-            {"s3l2", 3},
-            {"s3l1", 3},
-            {"s3l3", 3},
-    };
-    std::map<int, float> heightMap = {
+//maps for big blocks with 3stacks up to 3 blocks
+    std::map<int, float> heightMap2 = {
             {1, 0.04},
             {2, 0.085},
             {3, 0.13},
     };
-    std::map<int, float> stackPosMap = {
+    std::map<int, float> stackPosMap2 = {
             {1, -0.1},
             {2, 0.0},
             {3, 0.1},
+    };
+    //maps for small blocks with 5 stacks, up to 5 blocks
+    std::map<int, float> heightMap = {
+            {1, 0.04},
+            {2, 0.075},
+            {3, 0.11},
+            {4, 0.145},
+            {5, 0.18},
+    };
+    std::map<int, float> stackPosMap = {
+            {1, -0.14},
+            {2, -0.07},
+            {3, 0.0},
+            {4, 0.07},
+            {5, 0.14},
     };
 
 };
