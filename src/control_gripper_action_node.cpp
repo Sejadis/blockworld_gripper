@@ -19,8 +19,9 @@ public:
     GripperControlAction(std::string name, bool isOpener)
             : plansys2::ActionExecutorClient(name, 500ms)
     {
-        nodeName = name;
-        toolTargetValue = isOpener ?? OPENING_VALUE : CLOSING_VALUE;
+        this->declare_parameter<std::string>("my_parameter", "world");
+        //nodeName = name;
+        toolTargetValue = isOpener ? OPENING_VALUE : CLOSING_VALUE;
         isStarted = false;
         toolClient = this->create_client<open_manipulator_msgs::srv::SetJointPosition>("goal_tool_control");
         while (!toolClient->wait_for_service(1s)) {
@@ -53,7 +54,7 @@ private:
                   std::flush;
     }
 
-    std::string nodeName;
+    //std::string nodeName;
     float toolTargetValue;
     const float OPENING_VALUE = 0.01;
     const float CLOSING_VALUE = 0.0025;
@@ -64,6 +65,8 @@ private:
 int main(int argc, char ** argv)
 {
     rclcpp::init(argc, argv);
+    rclcpp::executors::MultiThreadedExecutor exe(rclcpp::executor::ExecutorArgs(), 8);
+
     auto grabNode = std::make_shared<GripperControlAction>("grab", false);
     auto unstackNode = std::make_shared<GripperControlAction>("unstack", false);
     auto placeNode = std::make_shared<GripperControlAction>("place", true);
@@ -81,7 +84,12 @@ int main(int argc, char ** argv)
     stackNode->set_parameter(rclcpp::Parameter("action_name", "stack"));
     stackNode->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
 
-    rclcpp::spin(node->get_node_base_interface());
+    exe.add_node(grabNode->get_node_base_interface());
+    exe.add_node(unstackNode->get_node_base_interface());
+    exe.add_node(placeNode->get_node_base_interface());
+    exe.add_node(stackNode->get_node_base_interface());
+
+    exe.spin();
 
     rclcpp::shutdown();
 
