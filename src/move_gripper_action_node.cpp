@@ -57,17 +57,12 @@ private:
             isCurrentMovementFinished = true; //we want to immediately start the next movement
             auto args = get_arguments();
             int level = -1;
-
-            std::map<std::string, int>::const_iterator iterLevel = levelMap.find(args[2]);
-            if (iterLevel != levelMap.end()) {
-                std::cout << iterLevel->first << "->" << iterLevel->second << std::endl;
-                level = iterLevel->second;
-            }
             int stack = -1;
-            std::map<std::string, int>::const_iterator iterStack = stackMap.find(args[2]);
-            if (iterStack != levelMap.end()) {
-                std::cout << iterStack->first << "->" << iterStack->second << std::endl;
-                stack = iterStack->second;
+
+            std::map<std::string, std::pair<int, int>>::const_iterator iter = map.find(args[2]);
+            if (iter != map.end()) {
+                stack = iter->second.first;
+                level = iter->second.second;
             }
 
             create_movement(stack, level);
@@ -90,7 +85,6 @@ private:
                 finish(true, 1.0, "Move completed");
 
                 isStarted = false;
-                std::cout << std::endl;
             }
         }
 
@@ -159,16 +153,16 @@ private:
     const std::string STATE_STOPPED = "STOPPED";
     const float STACK_POS = 0.25;
     const float CLEAR_HEIGHT = 0.25;
-    std::map<std::string, int> levelMap = {
-            {"s1l1", 1},
-            {"s2l1", 1},
-            {"s3l1", 1},
-            {"s1l2", 2},
-            {"s2l2", 2},
-            {"s3l2", 2},
-            {"s1l3", 3},
-            {"s2l3", 3},
-            {"s3l3", 3},
+    std::map<std::string, std::pair<int, int>> map = {
+            {"s1l1", std::make_pair(1,1)},
+            {"s2l1", std::make_pair(2,1)},
+            {"s3l1", std::make_pair(3,1)},
+            {"s1l2", std::make_pair(1,2)},
+            {"s2l2", std::make_pair(2,2)},
+            {"s3l2", std::make_pair(3,2)},
+            {"s1l3", std::make_pair(1,3)},
+            {"s2l3", std::make_pair(2,3)},
+            {"s3l3", std::make_pair(3,3)},
     };
     std::map<std::string, int> stackMap = {
             {"s1l1", 1},
