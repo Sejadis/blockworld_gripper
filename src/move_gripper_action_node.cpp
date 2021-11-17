@@ -18,6 +18,17 @@ class MoveGripperAction : public plansys2::ActionExecutorClient {
 public:
     MoveGripperAction()
             : plansys2::ActionExecutorClient("move_gripper", 100ms) {
+        initialize_parameters();
+        std::string size;
+        this->get_parameter("size", size);
+        if(size == "big"){
+            heightMap = &heightMapBig;
+            stackPosMap = &stackPosMapBig;
+        }
+        else{
+            heightMap = &heightMapSmall;
+            stackPosMap = &stackPosMapSmall;
+        }
         isStarted = false;
         isCurrentMovementFinished = false;
         manipulator_state_subscription_ = this->create_subscription<open_manipulator_msgs::msg::OpenManipulatorState>(
@@ -36,6 +47,13 @@ public:
     }
 
 private:
+    void initialize_parameters()
+    {
+        //this->declare_parameter<int>("stack_count", 3);
+        //this->declare_parameter<int>("stack_size", 3);
+        //this->declare_parameter<float>("block_size", 4.5);
+        this->declare_parameter<std::string>("size", "big");
+    }
     void manipulator_state_callback(const open_manipulator_msgs::msg::OpenManipulatorState::SharedPtr msg) {
         //std::cout << msg->open_manipulator_moving_state << std::endl;
         last_moving_state = current_moving_state;
@@ -103,22 +121,22 @@ private:
         auto currentPosition = kinematicsPose->pose.position;
         std::cout << "Calculating Positions..." << std::endl;
         std::cout << "Current (" << currentPosition.x << ", " << currentPosition.y << ", " << currentPosition.z << ")" << std::endl;
-        std::cout << "Target (" << STACK_POS << ", " << stackPosMap[stack] << ", " << heightMap[level] << ")" << std::endl;
-        if(roundTo2DecimalPlaces(currentPosition.x) != STACK_POS || roundTo2DecimalPlaces(currentPosition.y) != stackPosMap[stack]){
+        std::cout << "Target (" << STACK_POS << ", " << (*stackPosMap)[stack] << ", " << (*heightMap)[level] << ")" << std::endl;
+        if(roundTo2DecimalPlaces(currentPosition.x) != STACK_POS || roundTo2DecimalPlaces(currentPosition.y) != (*stackPosMap)[stack]){
             std::cout << "We are at the wrong stack, adding positions for collision free movement" << std::endl;
             auto currentClearRequest = create_request(currentPosition.x, currentPosition.y, CLEAR_HEIGHT);
 
             //a position above the target position that is clear from collisions
-            auto targetClearRequest = create_request(STACK_POS,stackPosMap[stack], CLEAR_HEIGHT);
+            auto targetClearRequest = create_request(STACK_POS,(*stackPosMap)[stack], CLEAR_HEIGHT);
             std::cout << "Adding Position: (" << currentPosition.x << ", " << currentPosition.y << ", " << CLEAR_HEIGHT << ")" << std::endl;
             requestQueue.push(currentClearRequest);
-            std::cout << "Adding Position: (" << STACK_POS << ", " << stackPosMap[stack] << ", " << CLEAR_HEIGHT << ")" << std::endl;
+            std::cout << "Adding Position: (" << STACK_POS << ", " << (*stackPosMap)[stack] << ", " << CLEAR_HEIGHT << ")" << std::endl;
             requestQueue.push(targetClearRequest);
         }
 
         //the position we want to end up at
-        auto targetPointRequest = create_request(STACK_POS, stackPosMap[stack], heightMap[level]);
-        std::cout << "Adding Position: (" << STACK_POS << ", " << stackPosMap[stack] << ", " << heightMap[level] << ")" << std::endl;
+        auto targetPointRequest = create_request(STACK_POS, (*stackPosMap)[stack], (*heightMap)[level]);
+        std::cout << "Adding Position: (" << STACK_POS << ", " << (*stackPosMap)[stack] << ", " << (*heightMap)[level] << ")" << std::endl;
         requestQueue.push(targetPointRequest);
     }
 
@@ -164,26 +182,28 @@ private:
             {"s2l3", std::make_pair(2,3)},
             {"s3l3", std::make_pair(3,3)},
     };
+    std::map<int, float>* heightMap;
+    std::map<int, float>* stackPosMap;
 //maps for big blocks with 3stacks up to 3 blocks
-    std::map<int, float> heightMap2 = {
+    std::map<int, float> heightMapBig = {
             {1, 0.04},
             {2, 0.085},
             {3, 0.13},
     };
-    std::map<int, float> stackPosMap2 = {
+    std::map<int, float> stackPosMapBig = {
             {1, -0.1},
             {2, 0.0},
             {3, 0.1},
     };
     //maps for small blocks with 5 stacks, up to 5 blocks
-    std::map<int, float> heightMap = {
-            {1, 0.04},
-            {2, 0.075},
-            {3, 0.11},
-            {4, 0.145},
-            {5, 0.18},
+    std::map<int, float> heightMapSmall = {
+            {1, 0.035},
+            {2,0.055},
+            {3, 0.075},
+            {4, 0.115},
+            {5, 0.15},
     };
-    std::map<int, float> stackPosMap = {
+    std::map<int, float> stackPosMapSmall = {
             {1, -0.14},
             {2, -0.07},
             {3, 0.0},

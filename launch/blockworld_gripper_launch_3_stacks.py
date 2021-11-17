@@ -54,7 +54,7 @@ def generate_launch_description():
         name='move_gripper_action_node',
         namespace=namespace,
         output='screen',
-        parameters=[])
+        parameters=[{"size": "big"}])
     control_gripper_cmd = Node(
         package='blockworld_gripper',
         executable='control_gripper_action_node',
