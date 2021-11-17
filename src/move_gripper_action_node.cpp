@@ -1,6 +1,7 @@
 #include <memory>
 #include <algorithm>
 #include <queue>
+#include <regex>
 
 #include "plansys2_executor/ActionExecutorClient.hpp"
 
@@ -76,13 +77,19 @@ private:
             auto args = get_arguments();
             int level = -1;
             int stack = -1;
-
-            std::map<std::string, std::pair<int, int>>::const_iterator iter = map.find(args[2]);
-            if (iter != map.end()) {
-                stack = iter->second.first;
-                level = iter->second.second;
+            std::smatch match;
+            if(regex_match(args[2], match, re_pattern) && match.size() == 3){
+                std::cout << match.size() << " " << match[0] << " " << match[1] << " " << match[2] << std::endl;
+                stack = std::stoi(match[1].str());
+                level = std::stoi(match[2].str());
             }
-
+            else
+            {
+                std::cout << "Error parsing location" << std::endl;
+            }
+            if(heightMap->size() < level || stackPosMap->size() < stack){
+                std::cout << "Missing coordinate data for stack:" << stack << ", Level:" << level << std::endl;
+            }
             create_movement(stack, level);
             queueLength = requestQueue.size();
             queueTasksDone = 0;
@@ -171,17 +178,7 @@ private:
     const std::string STATE_STOPPED = "STOPPED";
     const float STACK_POS = 0.25;
     const float CLEAR_HEIGHT = 0.25;
-    std::map<std::string, std::pair<int, int>> map = {
-            {"s1l1", std::make_pair(1,1)},
-            {"s2l1", std::make_pair(2,1)},
-            {"s3l1", std::make_pair(3,1)},
-            {"s1l2", std::make_pair(1,2)},
-            {"s2l2", std::make_pair(2,2)},
-            {"s3l2", std::make_pair(3,2)},
-            {"s1l3", std::make_pair(1,3)},
-            {"s2l3", std::make_pair(2,3)},
-            {"s3l3", std::make_pair(3,3)},
-    };
+    std::regex re_pattern{"^s(\\d+)l(\\d+)", std::regex::ECMAScript};
     std::map<int, float>* heightMap;
     std::map<int, float>* stackPosMap;
 //maps for big blocks with 3stacks up to 3 blocks

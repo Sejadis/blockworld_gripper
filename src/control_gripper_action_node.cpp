@@ -54,7 +54,7 @@ private:
     std::string nodeName;
     float toolTargetValue;
     const float OPENING_VALUE = 0.01;
-    const float CLOSING_VALUE = 0.0025;
+    const float CLOSING_VALUE = -0.01;
     bool isStarted;
     rclcpp::Client<open_manipulator_msgs::srv::SetJointPosition>::SharedPtr toolClient;
 };
