@@ -1,5 +1,6 @@
 PLANNING
-ros2 launch blockworld_gripper blockworld_gripper_launch.py
+ros2 launch blockworld_gripper blockworld_gripper_launch_3_stacks.py
+ros2 launch blockworld_gripper blockworld_gripper_launch_5_stacks.py
 ros2 run plansys2_terminal plansys2_terminal
 
 OPEN MANIPULATOR

@@ -11,6 +11,7 @@
 #include "open_manipulator_msgs/msg/open_manipulator_state.hpp"
 #include "open_manipulator_msgs/msg/kinematics_pose.hpp"
 #include "open_manipulator_msgs/srv/set_kinematics_pose.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
@@ -32,8 +33,13 @@ public:
         }
         isStarted = false;
         isCurrentMovementFinished = false;
+        for (int i = 0; i < 4; ++i) {
+            jointEffort.push_back(std::list<double>());
+        }
         manipulator_state_subscription_ = this->create_subscription<open_manipulator_msgs::msg::OpenManipulatorState>(
                 "states", 10, std::bind(&MoveGripperAction::manipulator_state_callback, this, _1));
+        joint_state_subscription_ = this->create_subscription<sensor_msgs::msg::JointState>(
+                "joint_states", 10, std::bind(&MoveGripperAction::joint_state_callback, this, _1));
         kinematics_pose_subscription_ = this->create_subscription<open_manipulator_msgs::msg::KinematicsPose>(
                 "kinematics_pose", 10, std::bind(&MoveGripperAction::kinematics_pose_callback, this, _1));
         kinematicsPoseClient = this->create_client<open_manipulator_msgs::srv::SetKinematicsPose>(
@@ -67,6 +73,41 @@ private:
     void kinematics_pose_callback(const open_manipulator_msgs::msg::KinematicsPose::SharedPtr msg) {
         //std::cout << &msg << std::endl;
         kinematicsPose = msg;
+    }
+
+    void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg) {
+        //std::cout << &msg << std::endl;
+        for (int i = 0; i < 4; ++i) {
+            jointEffort[i].push_front(msg->effort[i]);
+        }
+        if(jointEffort[0].size() > EFFORT_COUNT){
+            for (int i = 0; i < 4; ++i) {
+                jointEffort[i].pop_back();
+            }
+        }
+        evaluate_effort();
+    }
+
+    void evaluate_effort(){
+        for (int i = 0; i < 4; ++i) {
+            auto min = jointEffort[i].front();
+            auto max = jointEffort[i].front();
+            for (int j = 1; j < jointEffort[i].size(); ++j) {
+                auto iter = std::next(jointEffort[i].begin(), j);
+                auto val = *iter;
+                if(val < min){
+                    min = val;
+                }
+                if(val > max){
+                    max = val;
+                }
+            }
+            auto abs = std::abs(max-min);
+            if(abs > EFFORT_THRESHOLD){
+                std::cout << abs << " " <<  min <<  " " << max <<std::endl;
+                finish(false, 0, "Collision");
+            }
+        }
     }
 
     void do_work() {
@@ -163,6 +204,7 @@ private:
     }
 
     rclcpp::Subscription<open_manipulator_msgs::msg::OpenManipulatorState>::SharedPtr manipulator_state_subscription_;
+    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_subscription_;
     rclcpp::Subscription<open_manipulator_msgs::msg::KinematicsPose>::SharedPtr kinematics_pose_subscription_;
     rclcpp::Client<open_manipulator_msgs::srv::SetKinematicsPose>::SharedPtr kinematicsPoseClient;
     std::shared_ptr<open_manipulator_msgs::msg::KinematicsPose> kinematicsPose;
@@ -178,6 +220,9 @@ private:
     const std::string STATE_STOPPED = "STOPPED";
     const float STACK_POS = 0.25;
     const float CLEAR_HEIGHT = 0.25;
+    const int EFFORT_COUNT = 10;
+    const float EFFORT_THRESHOLD = 500;
+    std::vector<std::list<double>> jointEffort;
     std::regex re_pattern{"^s(\\d+)l(\\d+)", std::regex::ECMAScript};
     std::map<int, float>* heightMap;
     std::map<int, float>* stackPosMap;

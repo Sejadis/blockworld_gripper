@@ -8,15 +8,17 @@ find_package(rclcpp_action REQUIRED)
 find_package(plansys2_msgs REQUIRED)
 find_package(plansys2_executor REQUIRED)
 find_package(open_manipulator_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 set(CMAKE_CXX_STANDARD 17)
 
 set(dependencies
-    rclcpp
-    rclcpp_action
-    plansys2_msgs
-    plansys2_executor
-    open_manipulator_msgs
+        rclcpp
+        rclcpp_action
+        plansys2_msgs
+        plansys2_executor
+        open_manipulator_msgs
+        sensor_msgs
 )
 
 add_executable(control_gripper_action_node src/control_gripper_action_node.cpp)
