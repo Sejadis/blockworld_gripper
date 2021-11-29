@@ -25,27 +25,11 @@ ament_target_dependencies(control_gripper_action_node ${dependencies})
 add_executable(move_gripper_action_node src/move_gripper_action_node.cpp)
 ament_target_dependencies(move_gripper_action_node ${dependencies})
 
-add_executable(place_action_node src/place_action_node.cpp)
-ament_target_dependencies(place_action_node ${dependencies})
-
-add_executable(grab_action_node src/grab_action_node.cpp)
-ament_target_dependencies(grab_action_node ${dependencies})
-
-add_executable(stack_action_node src/stack_action_node.cpp)
-ament_target_dependencies(stack_action_node ${dependencies})
-
-add_executable(unstack_action_node src/unstack_action_node.cpp)
-ament_target_dependencies(unstack_action_node ${dependencies})
-
 install(DIRECTORY launch pddl DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
         move_gripper_action_node
         control_gripper_action_node
-        place_action_node
-        grab_action_node
-        stack_action_node
-        unstack_action_node
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION lib/${PROJECT_NAME}
