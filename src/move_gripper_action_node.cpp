@@ -6,7 +6,6 @@
 #include "plansys2_executor/ActionExecutorClient.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-#include "rclcpp_action/rclcpp_action.hpp"
 
 #include "open_manipulator_msgs/msg/open_manipulator_state.hpp"
 #include "open_manipulator_msgs/msg/kinematics_pose.hpp"
@@ -33,9 +32,7 @@ public:
         }
         isStarted = false;
         isCurrentMovementFinished = false;
-        for (int i = 0; i < 4; ++i) {
-            jointEffort.push_back(std::list<double>());
-        }
+
         manipulator_state_subscription_ = this->create_subscription<open_manipulator_msgs::msg::OpenManipulatorState>(
                 "states", 10, std::bind(&MoveGripperAction::manipulator_state_callback, this, _1));
         joint_state_subscription_ = this->create_subscription<sensor_msgs::msg::JointState>(
@@ -62,7 +59,6 @@ private:
         this->declare_parameter<std::string>("size", "big");
     }
     void manipulator_state_callback(const open_manipulator_msgs::msg::OpenManipulatorState::SharedPtr msg) {
-        //std::cout << msg->open_manipulator_moving_state << std::endl;
         last_moving_state = current_moving_state;
         current_moving_state = msg->open_manipulator_moving_state;
         if(last_moving_state == STATE_MOVING && current_moving_state == STATE_STOPPED){
@@ -71,48 +67,55 @@ private:
         }
     }
     void kinematics_pose_callback(const open_manipulator_msgs::msg::KinematicsPose::SharedPtr msg) {
-        //std::cout << &msg << std::endl;
         kinematicsPose = msg;
     }
 
     void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg) {
-        //std::cout << &msg << std::endl;
+        //we only care about the effort while this node is active
+        if(!isStarted) return;
         for (int i = 0; i < 4; ++i) {
-            jointEffort[i].push_front(msg->effort[i]);
+            std::cout << msg->effort[i] << std::endl;
         }
-        if(jointEffort[0].size() > EFFORT_COUNT){
-            for (int i = 0; i < 4; ++i) {
-                jointEffort[i].pop_back();
+        std::cout << "-------------" << std::endl;
+        //check all joints except gripper (gripper is always returned as effort 0 because of its control mode)
+        for (int i = 0; i < 4; i++) {
+            //increase the counter if the effort is greater than the threshold value
+            if(std::abs(msg->effort[i]) > EFFORT_THRESHOLD){
+                //save the position when the collision is initially detected to use as target position when aborting
+                if(jointEffortCounter[i] == 0){
+                    collisionPosition = kinematicsPose->pose.position;
+                }
+                int increment = msg->effort[i] >= 2 * EFFORT_THRESHOLD ? 2 : 1;
+                jointEffortCounter[i] += increment;
+                //abort plan when threshold is reached multiple consecutive times
+                if(jointEffortCounter[i] >= EFFORT_COUNT){
+                    abort_plan(i);
+                }
+            }
+            //reset counter when effort is below threshold
+            else{
+                jointEffortCounter[i] = 0;
             }
         }
-        evaluate_effort();
     }
 
-    void evaluate_effort(){
-        for (int i = 0; i < 4; ++i) {
-            auto min = jointEffort[i].front();
-            auto max = jointEffort[i].front();
-            for (int j = 1; j < jointEffort[i].size(); ++j) {
-                auto iter = std::next(jointEffort[i].begin(), j);
-                auto val = *iter;
-                if(val < min){
-                    min = val;
-                }
-                if(val > max){
-                    max = val;
-                }
-            }
-            auto abs = std::abs(max-min);
-            if(abs > EFFORT_THRESHOLD){
-                std::cout << abs << " " <<  min <<  " " << max <<std::endl;
-                finish(false, 0, "Collision");
-            }
+    void abort_plan(int servoIndex){
+        std::cout << "collision detected for servo " << servoIndex << ", aborting plan" <<std::endl;
+        auto request = create_request(collisionPosition.x, collisionPosition.y, collisionPosition.z);
+        auto result = kinematicsPoseClient->async_send_request(request);
+        //reset effort values
+        for (int i = 0; i < 4; i++) {
+            jointEffortCounter[i] = 0;
         }
+        isStarted = false;
+        finish(false, 0, "Collision");
     }
 
     void do_work() {
 
         if (!isStarted) {
+            //get arguments and initialise values
+            //do only once per execution
             isStarted = true;
             isCurrentMovementFinished = true; //we want to immediately start the next movement
             auto args = get_arguments();
@@ -137,6 +140,7 @@ private:
             send_feedback(float(queueTasksDone) / queueLength, "Move started");
         }
         if(isCurrentMovementFinished){
+            //last movement finished, advance the queue
             if (!requestQueue.empty()) {
                 auto nextRequest = requestQueue.front();
                 requestQueue.pop();
@@ -221,8 +225,9 @@ private:
     const float STACK_POS = 0.25;
     const float CLEAR_HEIGHT = 0.25;
     const int EFFORT_COUNT = 10;
-    const float EFFORT_THRESHOLD = 500;
-    std::vector<std::list<double>> jointEffort;
+    const float EFFORT_THRESHOLD = 400;
+    std::vector<int> jointEffortCounter {0, 0, 0, 0};
+    geometry_msgs::msg::Point collisionPosition;
     std::regex re_pattern{"^s(\\d+)l(\\d+)", std::regex::ECMAScript};
     std::map<int, float>* heightMap;
     std::map<int, float>* stackPosMap;
