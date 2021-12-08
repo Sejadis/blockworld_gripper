@@ -19,7 +19,6 @@ public:
     GripperControlAction(std::string name, bool isOpener)
             : plansys2::ActionExecutorClient(name, 500ms)
     {
-        this->declare_parameter<std::string>("my_parameter", "world");
         nodeName = name;
         toolTargetValue = isOpener ? OPENING_VALUE : CLOSING_VALUE;
         isStarted = false;
@@ -35,6 +34,7 @@ private:
     void do_work()
     {
         if (!isStarted) {
+            //create and send request for first call
             isStarted = true;
             auto request = std::make_shared<open_manipulator_msgs::srv::SetJointPosition::Request>();
             request->path_time = 0.5;
@@ -44,6 +44,7 @@ private:
             send_feedback(isStarted,  + "running");
             std::cout << nodeName <<" ... [started]" << std::endl;
         } else {
+            //finish the execution on 2nd call
             finish(true, 1.0, "grab completed");
 
             isStarted = false;

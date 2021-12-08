@@ -18,7 +18,6 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -36,44 +35,24 @@ def generate_launch_description():
     stdout_linebuf_envvar = SetEnvironmentVariable(
         'RCUTILS_LOGGING_BUFFERED_STREAM', '1')
 
-    plansys2_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(
-            get_package_share_directory('plansys2_bringup'),
-            'launch',
-            #'plansys2_bringup_launch_monolithic.py')),
-            'plansys2_bringup_launch_distributed.py')),
-        launch_arguments={
-          'model_file': example_dir + '/pddl/domain.pddl',
-          'namespace': namespace
-          }.items())
-
     # Specify the actions
-    move_gripper_cmd = Node(
-        package='blockworld_gripper',
-        executable='move_gripper_action_node',
-        name='move_gripper_action_node',
-        namespace=namespace,
-        prefix=['xterm -e gdb -ex run --args'],
-        output='screen',
-        parameters=[{"size": "big"}])
-    control_gripper_cmd = Node(
-        package='blockworld_gripper',
-        executable='control_gripper_action_node',
-        name='control_gripper_action_node',
+    terminal_cmd = Node(
+        package='plansys2_terminal',
+        executable='plansys2_terminal',
+        name='plansys2_terminal',
         namespace=namespace,
         output='screen',
-        parameters=[])
+        parameters=[{"problem_file": example_dir + '/pddl/problem_big_2.pddl'}])
+
     # Create the launch description and populate
     ld = LaunchDescription()
 
     # Set environment variables
-    ld.add_action(stdout_linebuf_envvar)
+    #ld.add_action(stdout_linebuf_envvar)
     ld.add_action(declare_namespace_cmd)
 
     # Declare the launch options
-    ld.add_action(plansys2_cmd)
+    ld.add_action(terminal_cmd)
 
-    ld.add_action(move_gripper_cmd)
-    ld.add_action(control_gripper_cmd)
 
     return ld
