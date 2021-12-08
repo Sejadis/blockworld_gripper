@@ -1,53 +1,45 @@
-# PlanSys2 Simple Example
+# Package for Blockworld with Gripper using OpenMANIPULATOR-X
 
 ## Description
 
-This is a simple example that shows the basic operation of PlanSys2. A simple PDDL domain has been specified, and we will use the PlanSys2 Terminal to insert commands. Actions simulate their execution.
+This allows to run planning tasks in a blockworld using a gripper and PlanSys2.
+A domain and example problem files are provided. Problems can be created either with the PlanSys2 Terminal manually or using the provided launch file to load a provided problem.
 
 ## How to run
+Start the OpenMANIPULATOR-X controller
 
 In terminal 1:
 
 ```
-ros2 launch plansys2_simple_example plansys2_simple_example_launch.py
+ros2 launch open_manipulator_x_controller  open_manipulator_x_controller.launch.py
 ```
+OPTIONALLY start the teleop
 
 In terminal 2:
-
 ```
-ros2 run plansys2_terminal plansys2_terminal        # enters in PlanSys2 Terminal
-set instance leia robot
-set instance entrance room
-set instance kitchen room
-set instance bedroom room
-set instance dinning room
-set instance bathroom room
-set instance chargingroom room
-
-get problem instances                               # Checks instances
-
-set predicate (connected entrance dinning)
-set predicate (connected dinning entrance)
-
-set predicate (connected dinning kitchen)
-set predicate (connected kitchen dinning)
-
-set predicate (connected dinning bedroom)
-set predicate (connected bedroom dinning)
-
-set predicate (connected bathroom bedroom)
-set predicate (connected bedroom bathroom)
-
-set predicate (connected chargingroom kitchen)
-set predicate (connected kitchen chargingroom)
-
-set predicate (charging_point_at chargingroom)
-set predicate (battery_low leia)
-set predicate (robot_at leia entrance)
-
-get problem predicates                                # Checks predicates
-
-set goal (and(robot_at leia bathroom))                # Sets the goal
-get plan                                              # Creates plan and shows it
-run                                                   # Creates plan and runs it
+ros2 run open_manipulator_x_teleop open_manipulator_x_teleop_keyboard
 ```
+
+Start the planning system
+
+In terminal 3:
+
+EITHER:
+```
+ros2 launch blockworld_gripper blockworld_gripper_launch_3_stacks.py
+```
+OR
+```
+ros2 launch blockworld_gripper blockworld_gripper_launch_5_stacks.py
+```
+
+Start the plansys terminal
+
+In terminal 4:
+EITHER:
+```
+ros2 run plansys2_terminal plansys2_terminal
+```
+then copy and paste the content of one of the problems in "/terminal_problems/"
+
+OR
